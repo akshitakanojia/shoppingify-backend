@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const List = require('./list')
+const Item = require('./item')
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -75,6 +77,14 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
   return user
 }
+
+//delete items and lists when user is deleted
+userSchema.pre('remove', async function(next){
+  const user = this
+  await List.deleteMany({ owner: user._id})
+  await Item.deleteMany({ owner: user._id})
+  next()
+})
 
 
 const User = mongoose.model('User', userSchema)

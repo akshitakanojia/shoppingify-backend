@@ -30,4 +30,24 @@ router.get('/items', auth, async (req, res) => {
   }
 })
 
+router.patch('/items/:id', auth, async (req, res) => {
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['name', 'note', 'image', 'category']
+  const isUpdateValid = updates.every(update => allowedUpdates.includes(update))
+
+  if (!isUpdateValid) return res.status(400).send({ error: 'Invalid updates!' })
+
+  try {
+    const item = await Item.findOne({ _id: req.params.id, owner: req.user._id });
+
+    if (!item) return res.status(404).send();
+
+    updates.forEach(update => item[update] = req.body[update])
+    await item.save()
+    res.send(item)
+  } catch (error) {
+    res.status(400).send(error)
+  }
+})
+
 module.exports = router

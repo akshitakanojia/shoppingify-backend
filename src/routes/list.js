@@ -4,7 +4,7 @@ const auth = require('../middleware/auth')
 
 const List = require('../models/list')
 
-router.post('/list', auth, async (req, res) => {
+router.post('/lists', auth, async (req, res) => {
   const list = new List({
     ...req.body,
     owner: req.user._id
